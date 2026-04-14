@@ -24,6 +24,37 @@ const SMS_WEBHOOK_URL  = process.env.SMS_WEBHOOK_URL || '';
 const COUNTER_OFFSET   = parseInt(process.env.COUNTER_OFFSET || '1500', 10);
 const ADMIN_TOKEN      = process.env.ADMIN_TOKEN ||
   require('crypto').randomBytes(12).toString('hex');
+const TURNSTILE_SECRET   = process.env.TURNSTILE_SECRET_KEY || '';
+
+// ─── Rate limiting (in-memory, 5 req / 15 min per IP) ──────────────────────────────────────
+const RATE_LIMIT_MAX    = 5;
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 min
+const _rateLimitMap     = new Map();
+function checkRateLimit(ip) {
+  const now = Date.now(), rec = _rateLimitMap.get(ip);
+  if (!rec || now > rec.resetAt) {
+    _rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  if (rec.count >= RATE_LIMIT_MAX) return false;
+  rec.count++; return true;
+}
+setInterval(() => { const now = Date.now(); for (const [ip,rec] of _rateLimitMap) if (now > rec.resetAt) _rateLimitMap.delete(ip); }, 30*60*1000);
+
+// ─── Cloudflare Turnstile verification (skeleton) ────────────────────────────
+function verifyTurnstile(token) {
+  if (!TURNSTILE_SECRET) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const body = JSON.stringify({ secret: TURNSTILE_SECRET, response: token || '' });
+    const req = require('https').request({
+      method: 'POST', hostname: 'challenges.cloudflare.com', port: 443,
+      path: '/turnstile/v0/siteverify',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+    }, (res) => { let raw = ''; res.on('data', c => raw += c); res.on('end', () => { try { resolve(!!JSON.parse(raw).success); } catch { resolve(false); } }); });
+    req.on('error', () => resolve(false)); req.write(body); req.end();
+  });
+}
+
 
 // יעדי התקדמות: 10,000 → 25,000 → 50,000 → 100,000
 const TARGETS = [10000, 25000, 50000, 100000];
@@ -166,9 +197,15 @@ const server = http.createServer(async (req, res) => {
 
   // ── API: POST /api/sign ───────────────────────────────────────────────────
   if (url === '/api/sign' && method === 'POST') {
+    const clientIp = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+    if (!checkRateLimit(clientIp)) return sendJSON(res, 429, { error: 'יותר מדי בקשות. נסה שנית בעוד 15 דקות.' });
     let body;
     try { body = await readBody(req); }
     catch { return sendJSON(res, 400, { error: 'בקשה שגויה' }); }
+
+    const turnstileToken = String(body['cf-turnstile-response'] || '');
+    const turnstileOk = await verifyTurnstile(turnstileToken);
+    if (!turnstileOk) return sendJSON(res, 403, { error: 'אימות אנטי-בוט נכשל. רעננו את הדף ונסו שנית.' });
 
     const first_name = String(body.first_name || '').trim();
     const last_name  = String(body.last_name  || '').trim();
