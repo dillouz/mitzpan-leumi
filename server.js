@@ -4,9 +4,9 @@
  * הפעלה מקומית:
  *   node server.js
  *
- * משתני סביבה אופציונליים:
+ * משתני סביבה אופציונליים:h
  *   PORT              – ברירת מחדל 3000
- *   CRM_WEBHOOK_URL   – URL של Make/Zapier/CRM. אם מוגדר – כל ליד חדש נשלח אוטומטית
+ *   CRM_WEBHOOK_URL   – URL של Make/Zapier/CRM. אם מוגדר – hכל ליד חדש נשלח אוטומטית
  *   SMS_WEBHOOK_URL   – URL לשליחת SMS (ראה sendSms למטה)
  *   COUNTER_OFFSET    – offset התחלתי למונה. ברירת מחדל 1500
  *   ADMIN_TOKEN       – טוקן לגישה לדשבורד האדמין ולייצוא CSV. אם לא מוגדר – ניצור אוטומטית
@@ -229,8 +229,6 @@ const server = http.createServer(async (req, res) => {
     if (email && !isValidEmail(email))
       return sendJSON(res, 400, { error: 'כתובת אימייל לא תקינה' });
 
-    if (!consent)
-      return sendJSON(res, 400, { error: 'יש לאשר קבלת עדכונים' });
 
     const sigs = loadData();
     const phoneClean = phone.replace(/[-\s]/g, '');
