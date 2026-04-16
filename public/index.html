@@ -1051,7 +1051,6 @@
       }
       if (phone && !validatePhone(phone)) { markError($('#phone'), true); return showMsg('מספר טלפון לא תקין', 'error'); }
       if (email && !validateEmail(email)) { markError($('#email'), true); return showMsg('כתובת אימייל לא תקינה', 'error'); }
-      if (!consent) return showMsg('יש לאשר קבלת עדכונים כדי להמשיך', 'error');
 
       btn.disabled = true;
       btn.textContent = 'שולח...';
