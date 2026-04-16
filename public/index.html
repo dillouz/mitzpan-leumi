@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>המצפן הלאומי | דן אילוז</title>
   <meta name="description" content="חתימה על חוקת הליכוד — נאמנים לדרך של המחנה הלאומי-ליברלי. יוזמה של ח&quot;כ דן אילוז." />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-src https://challenges.cloudflare.com; base-uri 'self'; form-action 'self';" />
 
   <!-- OG -->
   <meta property="og:title" content="המצפן הלאומי | דן אילוז" />
@@ -929,6 +930,11 @@
   <footer>
     <p>המצפן הלאומי · יוזמה של ח&quot;כ דן אילוז</p>
     <p>אתר זה אינו אתר מפלגתי רשמי. הציטוטים לקוחים מתוך חוקת הליכוד.</p>
+    <p style="margin-top:10px; font-size:0.78rem; opacity:0.7; max-width:600px; margin-left:auto; margin-right:auto;">
+      הגנת פרטיות: המידע שתמסרו ישמש אך ורק לעדכונים מטעם המצפן הלאומי ודן אילוז.
+      פרטיכם לא יועברו לצד שלישי ולא ייעשה בהם שימוש מסחרי.
+      ניתן לבקש הסרה מרשימת התפוצה בכל עת.
+    </p>
   </footer>
 
   <!-- ============ THANK YOU MODAL ============ -->
@@ -1006,11 +1012,27 @@
         names = [...names, ...FALLBACK_NAMES].slice(0, 24);
       }
       const ticker = $('#ticker');
-      const html = names.map((name, i) =>
-        `<span class="ticker-item"><span class="dot"></span><span class="name">${name}</span> ${ACTIONS[i % ACTIONS.length]}</span>`
-      ).join('');
+      ticker.textContent = '';
+      // Build ticker items safely using DOM API (no innerHTML)
+      const fragment = document.createDocumentFragment();
+      const createItem = (name, actionIdx) => {
+        const span = document.createElement('span');
+        span.className = 'ticker-item';
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        const nameEl = document.createElement('span');
+        nameEl.className = 'name';
+        nameEl.textContent = name;
+        span.appendChild(dot);
+        span.appendChild(nameEl);
+        span.appendChild(document.createTextNode(' ' + ACTIONS[actionIdx % ACTIONS.length]));
+        return span;
+      };
       // כפילות כדי ליצור לולאה חלקה
-      ticker.innerHTML = html + html;
+      for (let pass = 0; pass < 2; pass++) {
+        names.forEach((name, i) => fragment.appendChild(createItem(name, i)));
+      }
+      ticker.appendChild(fragment);
     }
 
     // ===== Form =====
