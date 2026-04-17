@@ -16,6 +16,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@500;700;900&display=swap" rel="stylesheet" />
 
+  <!-- Cloudflare Turnstile (anti-bot). Widget only renders when TURNSTILE_SITE_KEY is set on the server. -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad" async defer></script>
+
   <style>
     /* ========= DESIGN TOKENS ========= */
     :root {
@@ -705,8 +708,9 @@
         חוקת הליכוד מגדירה את ערכי היסוד של המחנה הלאומי-ליברלי —
         ביניהם שירות בצה&quot;ל לכולם, כלכלה חופשית ושלמות המולדת.
         <br/><br/>
-        אני מזמין אתכם להצטרף אליי בקריאה לכל חברי המחנה הלאומי להישאר נאמנים לדרכנו ולמנוע מכל גורם לסטות ממנה.
-        חתימה זו היא הצהרת אמונים לערכים, לא חברות במפלגה.
+        אני מזמין אתכם להצטרף אליי בקריאה לכל חברי המחנה הלאומי
+        להישאר נאמנים לדרכנו — ולא לסטות ממנה.
+        חתימה על העצומה היא הצהרת אמונים לערכים, לא חברות במפלגה.
       </p>
 
       <div class="hero-cta-row">
@@ -832,17 +836,25 @@
         </div>
 
         <div class="consent">
-          <input type="checkbox" id="consent" name="consent" />
+          <input type="checkbox" id="consent" name="consent" checked />
           <label for="consent">
-            אני מאשר/ת קבלת עדכונים מדן אילוז והמצפן הלאומי בוואטסאפ, ב-SMS או במייל.
+            אני מעוניין/ת לקבל עדכונים במייל מדן אילוז והמצפן הלאומי <span style="color:var(--text-muted);font-weight:400">(אופציונלי)</span>.
           </label>
         </div>
+
+        <!-- Turnstile anti-bot widget. Renders automatically once the sitekey loads from /api/config. -->
+        <div id="turnstile-widget" style="margin:16px 0;display:flex;justify-content:center"></div>
 
         <button type="submit" class="submit-btn" id="submit-btn">
           אני חותם/ת על חוקת הליכוד
         </button>
 
         <div class="form-msg" id="form-msg" role="alert"></div>
+
+        <p style="text-align:center;margin-top:14px;font-size:0.82rem;color:var(--text-muted)">
+          ניתן לבקש הסרה מהמאגר בכל עת —
+          <a href="/privacy.html" style="color:var(--navy-700);text-decoration:underline">לחצו כאן</a>
+        </p>
       </form>
     </div>
   </section>
@@ -1035,6 +1047,42 @@
       ticker.appendChild(fragment);
     }
 
+    // ===== Turnstile (anti-bot) =====
+    let turnstileWidgetId = null;
+    let turnstileSiteKey  = '';
+
+    fetch('/api/config', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(cfg => { turnstileSiteKey = cfg.turnstileSiteKey || ''; tryRenderTurnstile(); })
+      .catch(() => {});
+
+    // Cloudflare calls this once the API script finishes loading
+    window.onTurnstileLoad = tryRenderTurnstile;
+
+    function tryRenderTurnstile() {
+      if (!turnstileSiteKey)          return;  // sitekey not configured — skip
+      if (!window.turnstile)          return;  // script not yet loaded
+      if (turnstileWidgetId !== null) return;  // already rendered
+      try {
+        turnstileWidgetId = turnstile.render('#turnstile-widget', {
+          sitekey:  turnstileSiteKey,
+          theme:    'light',
+          language: 'he',
+        });
+      } catch (e) { /* sitekey invalid; silently skip */ }
+    }
+
+    function getTurnstileToken() {
+      if (!window.turnstile || turnstileWidgetId === null) return '';
+      try { return turnstile.getResponse(turnstileWidgetId) || ''; } catch { return ''; }
+    }
+
+    function resetTurnstile() {
+      if (window.turnstile && turnstileWidgetId !== null) {
+        try { turnstile.reset(turnstileWidgetId); } catch {}
+      }
+    }
+
     // ===== Form =====
     const form = $('#sign-form');
     const msg  = $('#form-msg');
@@ -1073,6 +1121,14 @@
       }
       if (phone && !validatePhone(phone)) { markError($('#phone'), true); return showMsg('מספר טלפון לא תקין', 'error'); }
       if (email && !validateEmail(email)) { markError($('#email'), true); return showMsg('כתובת אימייל לא תקינה', 'error'); }
+      // Consent is optional — we still pass the value to the server for segmentation,
+      // but we never block the submission if the box is unchecked.
+
+      // If Turnstile is configured, require a token before submitting
+      const turnstileToken = getTurnstileToken();
+      if (turnstileSiteKey && !turnstileToken) {
+        return showMsg('אנא השלימו את אימות האנטי-בוט לפני השליחה', 'error');
+      }
 
       btn.disabled = true;
       btn.textContent = 'שולח...';
@@ -1081,7 +1137,10 @@
         const res = await fetch('/api/sign', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ first_name, last_name, phone, email, consent }),
+          body: JSON.stringify({
+            first_name, last_name, phone, email, consent,
+            'cf-turnstile-response': turnstileToken,
+          }),
         });
         const data = await res.json();
 
@@ -1091,10 +1150,13 @@
           buildTicker();
           showMsg('תודה שהצטרפת!', 'success');
           openThanks();
+          resetTurnstile();
         } else {
+          resetTurnstile();
           showMsg(data.error || 'שגיאה בשליחה. נסו שוב.', 'error');
         }
       } catch (e) {
+        resetTurnstile();
         showMsg('לא ניתן לשלוח כרגע. ודאו שיש חיבור לאינטרנט.', 'error');
       } finally {
         btn.disabled = false;

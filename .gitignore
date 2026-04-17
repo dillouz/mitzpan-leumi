@@ -1,6 +1,8 @@
 node_modules/
 data/signatures.json
+data/signatures.enc
 data/*.json
+data/*.log
 !data/.gitkeep
 .env
 .env.local
