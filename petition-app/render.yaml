@@ -1,0 +1,71 @@
+services:
+  - type: web
+    name: mitzpan-leumi
+    runtime: node
+    plan: starter
+    buildCommand: ""
+    startCommand: node server.js
+    envVars:
+      # Counter offset for the public signature counter
+      - key: COUNTER_OFFSET
+        value: "1500"
+
+      # Admin login credentials (session-based auth + scrypt hashing).
+      - key: ADMIN_USER
+        value: "admin"
+
+      # Preferred: store the scrypt-hashed password. Generate it with:
+      #   node server.js --hash-password "YOUR_STRONG_PASSWORD"
+      # Copy the output into ADMIN_PASS_HASH and REMOVE any plaintext ADMIN_PASS.
+      - key: ADMIN_PASS_HASH
+        sync: false
+
+      # Fallback (less secure — avoid in production). If ADMIN_PASS_HASH is set,
+      # ADMIN_PASS is ignored. If neither is set, a default password is used (dev only).
+      - key: ADMIN_PASS
+        sync: false
+
+      # TOTP 2FA (Google Authenticator / Authy). Generate with:
+      #   node server.js --generate-totp
+      # Scan the otpauth URL into your authenticator app and paste the secret here.
+      - key: ADMIN_TOTP_SECRET
+        sync: false
+
+      # Optional: bind each admin session to the IP it was created from.
+      # Turn on for max security; leave off if you use mobile networks / VPNs.
+      - key: STRICT_SESSION_IP
+        value: "false"
+
+      # 32-byte hex key (64 hex chars) for AES-256-GCM encryption of signatures.enc.
+      # Generate locally with:  openssl rand -hex 32
+      # Set in Render dashboard. WARNING: if this changes, existing encrypted data becomes unreadable.
+      - key: DATA_ENCRYPTION_KEY
+        sync: false
+
+      # Cloudflare Turnstile anti-bot (free tier). Get keys at https://dash.cloudflare.com/?to=/:account/turnstile
+      #   TURNSTILE_SITE_KEY   — public key, exposed to the browser via /api/config
+      #   TURNSTILE_SECRET_KEY — server-side secret, used to verify tokens with Cloudflare
+      # If either is unset, the anti-bot check is skipped (dev mode). Set BOTH before a public push.
+      - key: TURNSTILE_SITE_KEY
+        sync: false
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
+
+      # CRM / SMS webhooks (Make.com / Zapier / n8n). Optional.
+      - key: CRM_WEBHOOK_URL
+        sync: false
+      - key: SMS_WEBHOOK_URL
+        sync: false
+
+      # Legacy ADMIN_TOKEN — still generated for backwards compat with any old /admin?token=… link.
+      # Dashboard now uses session cookies via /admin/login; this var can be removed once verified.
+      - key: ADMIN_TOKEN
+        generateValue: true
+
+      - key: NODE_ENV
+        value: "production"
+
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

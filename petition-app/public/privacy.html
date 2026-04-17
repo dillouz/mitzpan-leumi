@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>פרטיות ובקשת הסרה · המצפן הלאומי</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self';" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy-900:#0B1E3F; --navy-700:#14367A; --pearl:#FAFBFD; --border:#DDE3EC;
+      --gold-500:#D4A82A; --gold-600:#B88B15; --text:#11223F; --text-muted:#5A6A82;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Heebo',system-ui,sans-serif;color:var(--text);background:var(--pearl);line-height:1.7;padding:40px 20px;min-height:100vh}
+    .wrap{max-width:720px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:16px;padding:40px 48px;box-shadow:0 8px 28px rgba(11,30,63,0.08)}
+    h1{color:var(--navy-900);font-size:1.8rem;margin-bottom:8px}
+    .sub{color:var(--text-muted);margin-bottom:28px}
+    h2{color:var(--navy-700);font-size:1.2rem;margin:28px 0 10px}
+    p,li{font-size:0.96rem}
+    ul{margin:10px 0 10px 20px;padding-right:16px}
+    a{color:var(--navy-700)}
+    .form-card{margin-top:32px;background:var(--pearl);border:1.5px solid var(--border);border-radius:14px;padding:28px}
+    label{display:block;font-weight:600;margin-top:14px;margin-bottom:4px;font-size:0.92rem}
+    input,textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:1rem;font-family:inherit;box-sizing:border-box;background:#fff}
+    input:focus,textarea:focus{outline:none;border-color:var(--gold-500)}
+    textarea{resize:vertical;min-height:90px}
+    button{margin-top:20px;width:100%;padding:14px;background:var(--gold-500);color:var(--navy-900);border:none;border-radius:10px;font-size:1.05rem;font-weight:800;cursor:pointer;font-family:inherit}
+    button:hover{background:var(--gold-600)}
+    button:disabled{opacity:0.6;cursor:not-allowed}
+    .msg{margin-top:14px;padding:10px;border-radius:8px;font-size:0.92rem;display:none;text-align:center}
+    .msg.show{display:block}
+    .msg.error{background:#FDEBEF;color:#8A1A3A;border:1px solid #F1BCC8}
+    .msg.success{background:#EAFAF0;color:#15663B;border:1px solid #B6E4C3}
+    .back{display:inline-block;margin-top:24px;color:var(--navy-700);font-weight:600;text-decoration:none}
+    .back:hover{text-decoration:underline}
+    @media(max-width:560px){.wrap{padding:28px 20px}h1{font-size:1.45rem}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🧭 פרטיות ובקשת הסרה</h1>
+    <p class="sub">המצפן הלאומי · יוזמה של ח"כ דן אילוז</p>
+
+    <h2>אילו נתונים נשמרים?</h2>
+    <p>כשאתם חותמים על העצומה, אנחנו שומרים את שם פרטי, שם משפחה, טלפון ו/או אימייל, ואת תאריך ההצטרפות. זה הכל.</p>
+
+    <h2>איך הנתונים מאוחסנים?</h2>
+    <ul>
+      <li>הנתונים מוצפנים במנוחה באמצעות AES-256-GCM (תקן צבאי).</li>
+      <li>התקשורת עם האתר מוגנת ב-HTTPS בלבד.</li>
+      <li>הגישה לדשבורד הניהולי מוגנת בהתחברות עם סיסמה, הגבלת ניסיונות, ועוגיית סשן מוצפנת.</li>
+      <li>אין שיתוף של הנתונים עם צדדים שלישיים מלבד שירותי הדיוור (SMS/אימייל) שאליהם אתם נרשמים.</li>
+    </ul>
+
+    <h2>איך אפשר לבקש הסרה?</h2>
+    <p>
+      לפי חוק הגנת הפרטיות בישראל, יש לכם את הזכות לבקש הסרה ממאגר הנתונים שלנו בכל עת.
+      מלאו את הטופס למטה ונטפל בבקשה בתוך 7 ימי עבודה. תקבלו אישור במייל או בסמס לאחר ההסרה.
+    </p>
+
+    <div class="form-card">
+      <form id="del-form" novalidate>
+        <label for="phone">טלפון (כפי שהוזן בעת החתימה)</label>
+        <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="05X-XXXXXXX" />
+
+        <label for="email">או אימייל</label>
+        <input type="email" id="email" name="email" autocomplete="email" placeholder="name@example.com" />
+
+        <label for="reason">סיבה (אופציונלי)</label>
+        <textarea id="reason" name="reason" maxlength="500" placeholder="לא חובה — תוכלו לכתוב כאן אם תרצו להסביר"></textarea>
+
+        <button type="submit" id="del-btn">שליחת בקשת הסרה</button>
+
+        <div class="msg" id="del-msg" role="alert"></div>
+      </form>
+    </div>
+
+    <a href="/" class="back">← חזרה לדף הראשי</a>
+  </div>
+
+  <script>
+    const form = document.getElementById('del-form');
+    const msg  = document.getElementById('del-msg');
+    const btn  = document.getElementById('del-btn');
+
+    function show(text, type) { msg.textContent = text; msg.className = 'msg show ' + type; }
+    function clear() { msg.className = 'msg'; msg.textContent = ''; }
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      clear();
+      const phone  = document.getElementById('phone').value.trim();
+      const email  = document.getElementById('email').value.trim();
+      const reason = document.getElementById('reason').value.trim();
+
+      if (!phone && !email) return show('יש להזין לפחות אחד: טלפון או אימייל', 'error');
+
+      btn.disabled = true; btn.textContent = 'שולח...';
+      try {
+        const res = await fetch('/api/request-deletion', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ phone, email, reason }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          form.reset();
+          show(data.message || 'בקשתך התקבלה. נטפל בה בתוך 7 ימים.', 'success');
+        } else {
+          show(data.error || 'שגיאה בשליחת הבקשה. נסו שוב.', 'error');
+        }
+      } catch {
+        show('לא ניתן לשלוח כרגע. ודאו שיש חיבור לאינטרנט.', 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'שליחת בקשת הסרה';
+      }
+    });
+  </script>
+</body>
+</html>

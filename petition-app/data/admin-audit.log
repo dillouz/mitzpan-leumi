@@ -1,0 +1,9 @@
+{"ts":"2026-04-17T03:04:18.359Z","event":"login_failure","ip":"::ffff:127.0.0.1","user":"admin","reason":"bad_totp","userAgent":"curl/7.81.0"}
+{"ts":"2026-04-17T03:04:18.411Z","event":"login_failure","ip":"::ffff:127.0.0.1","user":"admin","reason":"bad_password","userAgent":"curl/7.81.0"}
+{"ts":"2026-04-17T03:04:18.481Z","event":"login_failure","ip":"::ffff:127.0.0.1","user":"admin","reason":"bad_totp","userAgent":"curl/7.81.0"}
+{"ts":"2026-04-17T03:05:07.391Z","event":"login_failure","ip":"::ffff:127.0.0.1","user":"admin","reason":"bad_totp","userAgent":"curl/7.81.0"}
+{"ts":"2026-04-17T03:10:14.377Z","event":"login_success","ip":"::ffff:127.0.0.1","user":"admin","userAgent":"curl/7.81.0","two_factor":true}
+{"ts":"2026-04-17T03:10:43.963Z","event":"login_failure","ip":"::ffff:127.0.0.1","user":"admin","reason":"bad_password","userAgent":"curl/7.81.0"}
+{"ts":"2026-04-17T03:10:44.016Z","event":"login_failure","ip":"::ffff:127.0.0.1","user":"admin","reason":"bad_totp","userAgent":"curl/7.81.0"}
+{"ts":"2026-04-17T03:10:44.058Z","event":"login_success","ip":"::ffff:127.0.0.1","user":"admin","userAgent":"curl/7.81.0","two_factor":true}
+{"ts":"2026-04-17T03:11:15.998Z","event":"login_success","ip":"::ffff:127.0.0.1","user":"admin","userAgent":"curl/7.81.0","two_factor":true}
