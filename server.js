@@ -572,9 +572,6 @@ const server = http.createServer(async (req, res) => {
     if (last_name.length < 1)
       return sendJSON(res, 400, { error: 'יש להזין שם משפחה' });
 
-    if (!phone && !email)
-      return sendJSON(res, 400, { error: 'יש להזין טלפון או אימייל (לפחות אחד)' });
-
     if (phone && !isValidPhone(phone))
       return sendJSON(res, 400, { error: 'מספר טלפון לא תקין' });
 

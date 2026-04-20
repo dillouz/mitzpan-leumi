@@ -812,7 +812,7 @@
       <div class="section-divider"></div>
       <h2 class="section-title">חתמו על העצומה</h2>
       <p class="section-sub">
-        שם פרטי ומשפחה, וליצירת קשר — טלפון או אימייל (לפחות אחד).
+        שם פרטי ומשפחה. טלפון ואימייל — אופציונליים.
       </p>
 
       <form class="form-card" id="sign-form" novalidate>
@@ -826,7 +826,7 @@
             <input type="text" id="last_name" name="last_name" autocomplete="family-name" required />
           </div>
           <div class="field">
-            <label for="phone">טלפון נייד <span class="opt">(טלפון או אימייל — לפחות אחד)</span></label>
+            <label for="phone">טלפון נייד <span class="opt">(אופציונלי)</span></label>
             <input type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="05X-XXXXXXX" />
           </div>
           <div class="field">
@@ -850,11 +850,6 @@
         </button>
 
         <div class="form-msg" id="form-msg" role="alert"></div>
-
-        <p style="text-align:center;margin-top:14px;font-size:0.82rem;color:var(--text-muted)">
-          ניתן לבקש הסרה מהמאגר בכל עת —
-          <a href="/privacy.html" style="color:var(--navy-700);text-decoration:underline">לחצו כאן</a>
-        </p>
       </form>
     </div>
   </section>
@@ -1115,10 +1110,6 @@
 
       if (first_name.length < 2) { markError($('#first_name'), true); return showMsg('יש להזין שם פרטי', 'error'); }
       if (last_name.length  < 1) { markError($('#last_name'),  true); return showMsg('יש להזין שם משפחה', 'error'); }
-      if (!phone && !email)      {
-        markError($('#phone'), true); markError($('#email'), true);
-        return showMsg('יש להזין לפחות אחד: טלפון או אימייל', 'error');
-      }
       if (phone && !validatePhone(phone)) { markError($('#phone'), true); return showMsg('מספר טלפון לא תקין', 'error'); }
       if (email && !validateEmail(email)) { markError($('#email'), true); return showMsg('כתובת אימייל לא תקינה', 'error'); }
       // Consent is optional — we still pass the value to the server for segmentation,
